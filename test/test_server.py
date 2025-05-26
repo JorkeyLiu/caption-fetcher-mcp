@@ -1,21 +1,18 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from server import _thread_local
+from src.server import _thread_local
 
-# Assuming server.py is in the same directory
-import server # Import the server module
+from src import server
 
 class TestYoutubeCaptionTool(unittest.TestCase):
 
-    # No setUp or tearDown needed as we are patching the tool handlers directly
-
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_success(self, mock_handle_tool):
         """Test successful YouTube caption fetching via the tool handler."""
         mock_handle_tool.return_value = {
             "captions": "hello\nworld",
             "video_id": "dQw4w9WgXcQ",
-            "language_codes_used": "en" # Assuming 'en' is the default language chosen
+            "language_codes_used": "en"
         }
         url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         result = server.handle_get_youtube_captions_tool(youtube_url=url)
@@ -25,7 +22,7 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertEqual(result["video_id"], "dQw4w9WgXcQ")
         self.assertEqual(result["language_codes_used"], "en") # Assert against the expected default language
 
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_with_languages(self, mock_handle_tool):
         """Test YouTube caption fetching with specified languages via the tool handler."""
         mock_handle_tool.return_value = {
@@ -42,7 +39,7 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertEqual(result["video_id"], "dQw4w9WgXcQ")
         self.assertEqual(result["language_codes_used"], "es") # Assert against the single language string
 
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_transcripts_disabled(self, mock_handle_tool):
         """Test handling TranscriptsDisabled via the tool handler."""
         mock_handle_tool.return_value = {
@@ -55,7 +52,7 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertIn("error", result)
         self.assertEqual(result["error"]["code"], "TRANSCRIPTS_DISABLED")
 
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_no_transcript_found_with_fallback(self, mock_handle_tool):
         """Test handling NoTranscriptFound with available fallback via the tool handler."""
         mock_handle_tool.return_value = {
@@ -75,7 +72,7 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertEqual(result["language_codes_used"], "fr") # Assert against the single language string
         self.assertIn("message", result)
 
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_no_transcript_found_no_fallback(self, mock_handle_tool):
         """Test handling NoTranscriptFound with no available fallback via the tool handler."""
         mock_handle_tool.return_value = {
@@ -94,7 +91,7 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertIn("error", result)
         self.assertEqual(result["error"]["code"], "NO_TRANSCRIPT_FOUND_FOR_SPECIFIED_LANGUAGE") # Assert against updated error code
 
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_invalid_url(self, mock_handle_tool):
         """Test handling invalid YouTube URL via the tool handler."""
         mock_handle_tool.return_value = {
@@ -107,7 +104,7 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertIn("error", result)
         self.assertEqual(result["error"]["code"], "INVALID_URL")
 
-    @patch('server.handle_get_youtube_captions_tool')
+    @patch('src.server.handle_get_youtube_captions_tool')
     def test_get_youtube_captions_unexpected_error(self, mock_handle_tool):
         """Test handling unexpected exceptions via the tool handler."""
         mock_handle_tool.return_value = {
@@ -121,18 +118,9 @@ class TestYoutubeCaptionTool(unittest.TestCase):
         self.assertEqual(result["error"]["code"], "UNEXPECTED_ERROR")
         self.assertIn("Some unexpected error", result["error"]["message"])
 
-    # Add Bilibili tests here
-# Re-evaluating patching strategy for Bilibili tests:
-# To test the server's tool handler for Bilibili, we should patch the
-# `fetch_bilibili_subtitle` function that the tool handler calls.
-
-# New Bilibili tests with revised patching strategy
-# Need to import fetch_bilibili_subtitle from bilibili_fetcher
-import asyncio # Import asyncio for running async tests
-
 class TestBilibiliCaptionTool(unittest.IsolatedAsyncioTestCase):
 
-    @patch('server.fetch_bilibili_subtitle')
+    @patch('src.server.fetch_bilibili_subtitle')
     async def test_get_bilibili_captions_success(self, mock_fetch_subtitle):
         """Test successful Bilibili caption fetching via the tool handler."""
         mock_fetch_subtitle.return_value = "Subtitle content line 1\nSubtitle content line 2"
@@ -149,7 +137,7 @@ class TestBilibiliCaptionTool(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result, "Subtitle content line 1\nSubtitle content line 2")
 
-    @patch('server.fetch_bilibili_subtitle')
+    @patch('src.server.fetch_bilibili_subtitle')
     async def test_get_bilibili_captions_with_language_and_format(self, mock_fetch_subtitle):
         """Test Bilibili caption fetching with specified language and format via the tool handler."""
         mock_fetch_subtitle.return_value = "00:00:00.000 --> 00:00:01.000\nLine 1\n\n00:00:01.500 --> 00:00:02.500\nLine 2\n\n"
@@ -165,7 +153,7 @@ class TestBilibiliCaptionTool(unittest.IsolatedAsyncioTestCase):
 
         self.assertIn("-->", result) # Check for timestamp format
 
-    @patch('server.fetch_bilibili_subtitle')
+    @patch('src.server.fetch_bilibili_subtitle')
     async def test_get_bilibili_captions_error_from_fetcher(self, mock_fetch_subtitle):
         """Test handling error returned by the fetcher function via the tool handler."""
         error_message = "Error: Could not extract a valid bvid from the URL: http://example.com"

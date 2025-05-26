@@ -10,8 +10,8 @@ from typing import Literal, Optional # Import Literal and Optional
 
 from bilibili_api import Credential # Import Credential
 
-from youtube_fetcher import fetch_youtube_captions # Import YouTube fetcher function
-from bilibili_fetcher import fetch_bilibili_subtitle # Import Bilibili fetcher function
+from .youtube_fetcher import fetch_youtube_captions # Import YouTube fetcher function
+from .bilibili_fetcher import fetch_bilibili_subtitle # Import Bilibili fetcher function
 
 _thread_local = threading.local()
 
