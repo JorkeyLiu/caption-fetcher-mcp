@@ -1,14 +1,10 @@
 # MCP Server for YouTube Captions
 
-import re
 import logging # Import logging module
 import threading
 
 from mcp.server.fastmcp import FastMCP
-import os # Import os for environment variables
 from typing import Literal, Optional # Import Literal and Optional
-
-from bilibili_api import Credential # Import Credential
 
 from .youtube_fetcher import fetch_youtube_captions # Import YouTube fetcher function
 from .bilibili_fetcher import fetch_bilibili_subtitle # Import Bilibili fetcher function
