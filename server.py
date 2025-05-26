@@ -2,8 +2,8 @@
 
 import re
 import logging # Import logging module
+import threading
 
-from logging_utils import TestMethodFilter
 from mcp.server.fastmcp import FastMCP
 import os # Import os for environment variables
 from typing import Literal, Optional # Import Literal and Optional
@@ -12,6 +12,14 @@ from bilibili_api import Credential # Import Credential
 
 from youtube_fetcher import fetch_youtube_captions # Import YouTube fetcher function
 from bilibili_fetcher import fetch_bilibili_subtitle # Import Bilibili fetcher function
+
+_thread_local = threading.local()
+
+class TestMethodFilter(logging.Filter):
+    """Custom filter to add test method name to log records."""
+    def filter(self, record):
+        record.test_method = getattr(_thread_local, 'test_method_name', 'N/A')
+        return True
 
 # Configure basic logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
